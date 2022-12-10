@@ -1,0 +1,278 @@
+<?xml version="1.0"?>
+<!DOCTYPE workflow
+[
+	<!--Scrub Times-->
+	<!ENTITY CYCLE_THROTTLE "4">
+
+	<!--Experiment parameters such as starting, ending dates-->
+	<!ENTITY SDATE "201608110000">
+	<!ENTITY EDATE "201608130000">
+	<!ENTITY INTERVAL "3:00:00">
+	<!ENTITY CCPP_SUITE "SCM_RAP">
+
+	<!--Experiment related directories-->
+	<!ENTITY SCM_ROOT "/home/xiasun/MU-MIP/ccpp-scm-dec7">
+	<!ENTITY ICON_IC "/home/xiasun/work2_xiasun/mumip/icon_v2.0/swift.dkrz.de">
+	<!ENTITY COMBINE_IC "/home/xiasun/work2_xiasun/mumip/icon_v2.0/combined_ic">
+	<!ENTITY SPLIT_IC "/home/xiasun/work2_xiasun/mumip/icon_v2.0/proc">
+	<!ENTITY RUN_DIR "/home/xiasun/MU-MIP/ccpp-scm-dec7/scm">
+	<!ENTITY SCM_RESULTS "/home/xiasun/work2_xiasun/mumip/scm_results">
+	<!ENTITY CONCATE_OUTPUT "/home/xiasun/work2_xiasun/mumip/scm_results">
+	<!ENTITY SCRIPTS "/home/xiasun/work2_xiasun/workflow_v1/scripts">
+	<!ENTITY PYSCRIPTS "/home/xiasun/work2_xiasun/workflow_v1/scripts/python_scripts">
+	<!ENTITY LOG "/home/xiasun/work2_xiasun/workflow_v1/log">
+
+	<!--Machine related entities-->
+	<!ENTITY SCHEDULER "slurm">
+
+	<!--ROCOTO parameters that control workflow-->
+	<!ENTITY CYCLE_THROTTLE "2">
+
+	<!--BEGIN: Resource requirements for the workflow-->
+
+	<!ENTITY WALLTIME_COMBINE_IC "00:05:00">
+	<!ENTITY RESOURCES_COMBINE_IC "<nodes>1:ppn=1:tpp=1</nodes>">
+
+	<!ENTITY WALLTIME_SPLIT_IC "00:59:00">
+	<!ENTITY RESOURCES_SPLIT_IC "<nodes>1:ppn=2:tpp=20</nodes>">
+
+	<!ENTITY WALLTIME_RUN_SCM "07:59:00">
+	<!ENTITY RESOURCES_RUN_SCM "<nodes>4:ppn=2:tpp=10</nodes>">
+
+	<!ENTITY WALLTIME_LATLON_MOVE "07:59:00">
+	<!ENTITY RESOURCES_LATLON_MOVE "<nodes>2:ppn=2:tpp=20</nodes>">
+
+	<!ENTITY WALLTIME_CONCATE_INST "02:59:00">
+	<!ENTITY RESOURCES_CONCATE_INST "<nodes>1:ppn=2:tpp=20</nodes>">
+
+	<!ENTITY WALLTIME_CONCATE_ACCUM "07:59:00">
+	<!ENTITY RESOURCES_CONCATE_ACCUM "<nodes>1:ppn=2:tpp=20</nodes>">
+
+	<!ENTITY WALLTIME_CONCATE_TIME "07:59:00">
+	<!ENTITY RESOURCES_CONCATE_TIME "<nodes>1:ppn=2:tpp=20</nodes>">
+]>
+
+<!--workflow below here-->
+<workflow realtime="F" cyclethrottle="&CYCLE_THROTTLE;" scheduler="&SCHEDULER;" taskthrottle="20">
+
+	<log><cyclestr>&LOG;/combine_@Y@m@d@H.log</cyclestr></log>
+	<cycledef group="icon">&SDATE; &EDATE; &INTERVAL;</cycledef>
+	<cycledef group="at_end">00 00 13 08 2016 *</cycledef>
+
+<!-- 	<task name="combine_ic" cycledefs="icon" maxtries="3" final="false">
+		<command>&SCRIPTS;/combine_ic.sh</command>
+
+		<jobname><cyclestr>combineic_@H</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_COMBINE_IC;
+		<walltime>&WALLTIME_COMBINE_IC;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+
+	<dependency>
+		<not>
+			<or>
+				<datadep><cyclestr>&COMBINE_IC;/mumip_icon2.5_IO_0.2_@Y@m@d.@H_combined_v2.0.nc</cyclestr></datadep>
+			</or>
+		</not>
+	</dependency>
+
+	</task>
+
+	<task name="split_ic" cycledefs="icon" maxtries="3" final="false">
+		<command>&SCRIPTS;/split_ic.sh</command>
+
+		<jobname><cyclestr>@H_split</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_SPLIT_IC;
+		<walltime>&WALLTIME_SPLIT_IC;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>SCRIPTS</name><value>&SCRIPTS;</value></envar>
+
+	<dependency>
+		<and>
+			<datadep><cyclestr>&COMBINE_IC;/mumip_icon2.5_IO_0.2_@Y@m@d.@H_combined_v2.0.nc</cyclestr></datadep>
+
+			<nor>
+				<datadep><cyclestr>&SPLIT_IC;/@m_@d_@H/mumip_icon2.5_IO_0.2_@Y@m@d.@H_combined_lat199_lon219_v2.0.nc</cyclestr></datadep>
+			</nor>
+		</and>
+
+	</dependency>
+
+	</task>
+ -->
+
+	<task name="run_scm" cycledefs="icon" maxtries="3" final="false">
+		<command>&SCRIPTS;/run_scm.sh</command>
+
+		<jobname><cyclestr>@H_scm</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_RUN_SCM;
+		<walltime>&WALLTIME_RUN_SCM;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>SCRIPTS</name><value>&SCRIPTS;</value></envar>
+		<envar><name>CCPP_SUITE</name><value>&CCPP_SUITE;</value></envar>
+		<envar><name>SCM_ROOT</name><value>&SCM_ROOT;</value></envar>
+
+	<dependency>
+		<and>
+			<datadep><cyclestr>&SPLIT_IC;/@m_@d_@H/mumip_icon2.5_IO_0.2_@Y@m@d.@H_combined_lat199_lon219_v2.0.nc</cyclestr></datadep>
+
+			<nor>
+				<datadep><cyclestr>&SCM_RESULTS;/v2.0_&CCPP_SUITE;/@m_@d_@H/mumip_scm_@Y@m@d.@H_lat199_lon219_v2.0_&CCPP_SUITE;.nc</cyclestr></datadep>
+			</nor>
+			
+		</and>
+	</dependency>
+
+	</task>
+
+
+	<task name="latlon_move" cycledefs="icon" maxtries="3" final="false">
+		<command>&SCRIPTS;/latlon_move.sh</command>
+
+		<jobname><cyclestr>@H_move</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_LATLON_MOVE;
+		<walltime>&WALLTIME_LATLON_MOVE;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>SCRIPTS</name><value>&SCRIPTS;</value></envar>
+		<envar><name>SCM_RESULTS</name><value>&SCM_RESULTS;</value></envar>
+		<envar><name>RUN_DIR</name><value>&RUN_DIR;</value></envar>	
+		<envar><name>CCPP_SUITE</name><value>&CCPP_SUITE;</value></envar>	
+	<dependency>
+		<and>
+			<datadep><cyclestr>&RUN_DIR;/run_lat199_lon219_@m@d@H/output_icon_lat199_lon219_@m@d@H_&CCPP_SUITE;/output.nc</cyclestr></datadep>
+		</and>
+	</dependency>
+
+	</task>
+
+	<task name="concate_inst" cycledefs="icon" maxtries="3" final="false">
+		<command>&SCRIPTS;/concate_inst.sh</command>
+
+		<jobname><cyclestr>@H_inst</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_CONCATE_INST;
+		<walltime>&WALLTIME_CONCATE_INST;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>SCRIPTS</name><value>&SCRIPTS;</value></envar>
+		<envar><name>PYSCRIPTS</name><value>&PYSCRIPTS;</value></envar>
+		<envar><name>CONCATE_OUTPUT</name><value>&CONCATE_OUTPUT;</value></envar>
+		<envar><name>SCM_RESULTS</name><value>&SCM_RESULTS;</value></envar>		
+		<envar><name>CCPP_SUITE</name><value>&CCPP_SUITE;</value></envar>
+	<dependency>
+		<and>
+			<datadep><cyclestr>&SCM_RESULTS;/v2.0_&CCPP_SUITE;/@m_@d_@H/mumip_scm_@Y@m@d.@H_lat199_lon219_v2.0_&CCPP_SUITE;.nc</cyclestr></datadep>
+		</and>
+	</dependency>
+
+	</task>
+
+	<task name="concate_accum" cycledefs="icon" maxtries="3" final="false">
+		<command>&SCRIPTS;/concate_accum.sh</command>
+
+		<jobname><cyclestr>@H_accum</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_CONCATE_ACCUM;
+		<walltime>&WALLTIME_CONCATE_ACCUM;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>SCRIPTS</name><value>&SCRIPTS;</value></envar>
+		<envar><name>PYSCRIPTS</name><value>&PYSCRIPTS;</value></envar>
+		<envar><name>CONCATE_OUTPUT</name><value>&CONCATE_OUTPUT;</value></envar>
+		<envar><name>SCM_RESULTS</name><value>&SCM_RESULTS;</value></envar>		
+		<envar><name>CCPP_SUITE</name><value>&CCPP_SUITE;</value></envar>
+	<dependency>
+		<and>
+			<datadep><cyclestr>&SCM_RESULTS;/v2.0_&CCPP_SUITE;/@m_@d_@H/mumip_scm_@Y@m@d.@H_lat199_lon219_v2.0_&CCPP_SUITE;.nc</cyclestr></datadep>
+		</and>
+	</dependency>
+
+	</task>
+
+	<task name="concate_time" cycledefs="at_end" maxtries="3">
+		<command>&SCRIPTS;/concate_time.sh</command>
+
+		<jobname><cyclestr>@H_time</cyclestr></jobname>
+		<account>gmtb</account>
+		<partition>orion</partition>
+		&RESOURCES_CONCATE_TIME;
+		<walltime>&WALLTIME_CONCATE_TIME;</walltime>
+		
+		<envar><name>CDATE</name><value><cyclestr>@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_3</name><value><cyclestr offset="3:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_6</name><value><cyclestr offset="6:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>CDATE_9</name><value><cyclestr offset="9:00:00">@Y@m@d@H</cyclestr></value></envar>
+		<envar><name>ICON_IC</name><value>&ICON_IC;</value></envar>
+		<envar><name>COMBINE_IC</name><value>&COMBINE_IC;</value></envar>
+		<envar><name>PDY</name><value><cyclestr>@Y@m@d</cyclestr></value></envar>
+		<envar><name>cyc</name><value><cyclestr>@H</cyclestr></value></envar>
+		<envar><name>SCRIPTS</name><value>&SCRIPTS;</value></envar>
+		<envar><name>PYSCRIPTS</name><value>&PYSCRIPTS;</value></envar>
+		<envar><name>CONCATE_OUTPUT</name><value>&CONCATE_OUTPUT;</value></envar>
+		<envar><name>SCM_RESULTS</name><value>&SCM_RESULTS;</value></envar>		
+		<envar><name>CCPP_SUITE</name><value>&CCPP_SUITE;</value></envar>
+	<dependency>
+		<and>
+			<taskdep task="concate_inst"/>
+			<taskdep task="concate_accum"/>
+		</and>
+	</dependency>
+
+	</task>
+
+</workflow>
