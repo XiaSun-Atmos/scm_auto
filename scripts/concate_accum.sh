@@ -74,7 +74,7 @@ concat_scm (){
 	ncatted -h -O -a units,time,o,c,"seconds since 2016-08-11 00:00:00" ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc # change the time unit
 	ncatted -h -O -a long_name,time,a,c,"time" ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc
 	ncatted -h -O -a calendar,time,a,c,"proleptic_gregorian" ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc
-	ncap2 -h -s "time(:)={${delta}}" ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc -O S${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc   #change time value from 2016-08-11 00:00:00
+	ncap2 -h -s "time(:)={${delta}}" ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc -O ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc   #change time value from 2016-08-11 00:00:00
 	mv ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd$cyc.nc ${CCPP_SUITE}_ICON_${2}_$yyyy$mm$dd${cyc}_lat$1.nc
 }
 export -f concat_scm
