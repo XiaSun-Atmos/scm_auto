@@ -30,5 +30,12 @@ cyc9=$(echo $CDATE_9 | cut -c9-10)
 
 module load nco
 cd $ICON_IC
-ncrcat mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_v2.0.nc mumip_icon2.5_IO_0.2_$yyyy3$mm3$dd3.${cyc3}_v2.0.nc mumip_icon2.5_IO_0.2_$yyyy6$mm6$dd6.${cyc6}_v2.0.nc mumip_icon2.5_IO_0.2_$yyyy9$mm3$dd9.${cyc9}_v2.0.nc mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc9}_combined_v2.0.nc 
-mv mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc9}_combined_v2.0.nc ${COMBINE_IC}/mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_combined_v2.0.nc 
+rm -rf mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc9}_combined_v2.0.nc
+ncrcat mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy3$mm3$dd3.${cyc3}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy6$mm6$dd6.${cyc6}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy9$mm9$dd9.${cyc9}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc9}_combined_v2.0.nc 
+mv mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc9}_combined_v2.0.nc ${COMBINE_IC}/mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined.nc
+
+cd ${COMBINE_IC}
+cp -r ${SCRIPTS}/to_dephy_from_mumip_${EXP}_combined.bash to_dephy_from_mumip_${EXP}_combined_$yyyy$mm$dd${cyc}.bash
+chmod u+x to_dephy_from_mumip_${EXP}_combined_$yyyy$mm$dd${cyc}.bash
+./to_dephy_from_mumip_${EXP}_combined_$yyyy$mm$dd${cyc}.bash mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined.nc $yyyy$mm$dd${cyc}0000 $yyyy9$mm9$dd9${cyc9}0000
+exit
