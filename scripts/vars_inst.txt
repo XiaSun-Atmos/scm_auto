@@ -3,3 +3,12 @@ v
 T
 pres
 qv
+tsfc
+lhf
+shf
+max_cloud_fraction
+rad_cloud_fraction
+rad_cloud_lwp
+rad_cloud_iwp
+rad_cloud_rwp
+rad_cloud_swp
