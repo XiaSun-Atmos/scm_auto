@@ -24,11 +24,3 @@ The workflow includes seven jobs, pertaining to pre-processing, SCM simulations,
 `rocotorun -d scm_auto.db -w scm_auto.xml`
 
 More information on how to use Rocoto are available in the [Rocoto documentation](http://christopherwharrop.github.io/rocoto/).
-
-Contributors: 
-
-Xia Sun, xia.sun@noaa.gov
-
-Kathryn Newman, knewman@ucar.edu
-
-Will Mayfield, wmayfield@ucar.edu 
