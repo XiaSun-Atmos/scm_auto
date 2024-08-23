@@ -8,11 +8,11 @@ The scripts are developed based on the [Common Community Physics Package (CCPP) 
 The workflow includes seven jobs, pertaining to pre-processing, SCM simulations, and post-processing:
 * *combine_ic* - combine initial condition (IC) data files temporally
 * *split_ic* - split 4-D IC dataset generatede from combine_ic to single columns
-* *run_scm* - conduct SCM runs over all columns. 
-* *latlon_move* - Add `latitude` and `longitude` dimensions to the `output.nc` generated from CCPP SCM and them to a separate Results directory
+* *scm_auto* - conduct SCM runs over all columns. 
 * *concate_inst* - Concatenate the SCM instantanous variables spatially 
-* *concate_accum* - Concatenate the SCM accumulative variables spatially 
+* *concate_accum* - Concatenate the SCM accumulative variables spatially
 * *concate_time* - Concatenate all SCM results temporarily
+* *tar_scm* - tar scm files to reduce number of files
 
 ## Prerequisites
 * Rocoto Workflow Management System
