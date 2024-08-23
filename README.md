@@ -26,6 +26,7 @@ The workflow includes seven jobs, pertaining to pre-processing, SCM simulations,
 More information on how to use Rocoto are available in the [Rocoto documentation](http://christopherwharrop.github.io/rocoto/).
 
 Contributors: 
+
 Xia Sun, xia.sun@noaa.gov
 
 Kathryn Newman, knewman@ucar.edu
