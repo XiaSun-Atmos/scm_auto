@@ -27,5 +27,7 @@ More information on how to use Rocoto are available in the [Rocoto documentation
 
 Contributors: 
 Xia Sun, xia.sun@noaa.gov
+
 Kathryn Newman, knewman@ucar.edu
+
 Will Mayfield, wmayfield@ucar.edu 
