@@ -1,0 +1,12 @@
+$case_config
+case_name = 'CASENAME',
+runtime = 32400,
+input_type = 1,
+mom_forcing_type=2
+sfc_flux_spec = .true.,
+sfc_type=0,
+thermo_forcing_type=2,
+reference_profile_choice = 2,
+column_area = 4.84e+8,
+C_RES = 768,
+$end
