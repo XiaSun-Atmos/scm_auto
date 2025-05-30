@@ -3,3 +3,7 @@ v
 T
 pres
 qv
+tsfc
+lhf
+shf
+max_cloud_fraction

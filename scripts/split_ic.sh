@@ -1,18 +1,25 @@
 #!/bin/bash -x
 ###############################################################
 ## Abstract:
-## Split ICON IC to each grid points & 
-## Convert to DEPHY format
+## 1.Split ICON IC to each grid points and convert to DEPHY format
+## 2. Run scm at each grid point in parallel
+## 3. Add lat and lon dimension to CCPP SCM output and move to &
+## another directory for future concatenate
 ## CDATE  : current date (YYYYMMDDHH)
 ## ICON_IC : /full/path/to/ICON/IC
 ## COMBINE_IC : /full/path/to/combined/IC
 ## cyc    : current cycle (HH)
 ## SCRIPTS: /full/path/to/job/scripts
 ###############################################################
-export PATH="/home/xiasun/xiasun/anaconda3/bin:$PATH"
-export PATH="/work/noaa/gmtb/xiasun/MU-MIP/tools/gnu_parallel/bin:$PATH"
-module load nco
 
+ulimit -u unlimited
+ulimit -s unlimited
+ulimit -a unlimited
+module purge
+module use /work2/noaa/gmtb/mumip/scm_build/ccpp-scm-v7/ccpp-scm/scm/etc/modules
+module load orion_intel
+module load nco
+export PATH="/work/noaa/gmtb/xiasun/MU-MIP/tools/gnu_parallel/bin:$PATH"
 yyyy=$(echo $CDATE | cut -c1-4)
 mm=$(echo $CDATE | cut -c5-6)
 dd=$(echo $CDATE | cut -c7-8)
@@ -33,13 +40,28 @@ mm9=$(echo $CDATE_9 | cut -c5-6)
 dd9=$(echo $CDATE_9 | cut -c7-8)
 cyc9=$(echo $CDATE_9 | cut -c9-10)
 
+export yyyy
+export mm
+export dd
+export cyc
+export yyyy9
+export mm9
+export dd9
+export cyc9
 
-cd /home/xiasun/work2_xiasun/mumip/icon_v2.0/proc
-mkdir ${mm}_${dd}_${cyc}
-cd ${mm}_${dd}_${cyc}
-cp -r ${SCRIPTS}/to_dephy_from_mumip_v4.bash .
+suite1=SCM_RAP
+suite2=SCM_GFS_v17_HR3
 
-split_batch (){
+export suite1
+export suite2
+
+minsize=50000
+
+# make dirs for IC
+mkdir ${SPLIT_IC}/${mm}_${dd}_${cyc}
+
+split_ic (){
+	minsize=50000
 	yyyy=$(echo $CDATE | cut -c1-4)
 	mm=$(echo $CDATE | cut -c5-6)
 	dd=$(echo $CDATE | cut -c7-8)
@@ -50,9 +72,41 @@ split_batch (){
 	dd9=$(echo $CDATE_9 | cut -c7-8)
 	cyc9=$(echo $CDATE_9 | cut -c9-10)
 
-   ncks -d lat,$1,$1 -d lon,$2,$2 ${COMBINE_IC}/mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_combined_v2.0.nc mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2_v2.0.nc
-   ./to_dephy_from_mumip_v4.bash mumip_icon2.5_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2_v2.0.nc $yyyy$mm$dd${cyc}0000 $yyyy9$mm9$dd9${cyc9}0000 
-   echo "finish $1 $2"
+	######## Retrieve IC at lat and lon ##########
+	mkdir ${SPLIT_IC}/${mm}_${dd}_${cyc}/lat_$1
+	cd ${SPLIT_IC}/${mm}_${dd}_${cyc}/lat_$1
+    rm -r mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+    ncks -h -d lat,$1 -d lon,$2 ${COMBINE_IC}/mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined.nc mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+	ncwa -h -a lon,lat mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc -O mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+	###   global attributes   ###
+	z0=`ncdump -v z0 mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc | tail -n 2 | head -n 1 | cut -d ';' -f 1`
+	zorog=`ncdump -v orog mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc | tail -n 2 | head -n 1 | cut -d ';' -f 1`
+	# zorog=$(($zorog))
+	z0=`echo ${z0} | xargs`
+	zorog=`echo ${zorog} | xargs`
+
+	ncatted -h -a zorog,global,c,f,0.0 -a z0,global,c,f,0.0 \
+	mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc -O mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+
+	
+	actsize=`wc -c <"mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat${1}_lon${2}.nc"`  # check if python work properly
+	echo $actsize
+	echo $minsize
+
+	if [[ $actsize -lt $minsize ]]; then
+    	echo "lat$1 lon$2 Fail"
+	else
+	 	echo "finish split_ic for lat$1 lon$2"
+	fi
+
+ 	unset z0
+	unset zorog
+	unset actsize
+
+ 	echo "finish split_ic for $1 $2"
+
 }
-export -f split_batch
-parallel split_batch ::: {0..199} ::: {0..219}
+export -f split_ic
+
+time parallel -j 40 -u split_ic ::: {0..199} ::: {0..219}
+
