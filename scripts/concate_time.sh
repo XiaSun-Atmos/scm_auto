@@ -9,58 +9,37 @@
 ## SCRIPTS: /full/path/to/job/scripts
 ## PYSCRIPTS: /full/path/to/python/scripts
 ## CONCATE_OUTPUT: /full/path/to/concatenate/output
+## author: Xia Sun, CIRES at CU Boulder/NOAA Global Systems Laboratory (Xia.Sun@colorado.edu)
+
 ###############################################################
 
-export PATH="/work/noaa/gmtb/xiasun/MU-MIP/tools/gnu_parallel/bin:$PATH"
-export PATH="/home/xiasun/xiasun/anaconda3/bin:$PATH"
+
 module load nco
+module load parallel
 
-minsize=18000
+vars=("T" "u" "v" "qv" "pres" "tsfc" "lhf" "shf" "t2m" "q2m" "u10m" "v10m" "pres_s" "qc" "qi" "ql" "sfc_dwn_lw" 'pwat' \
+"sfc_net_sw" "sfc_up_sw" "sfc_dwn_sw" "dT_dt_phys" "dT_dt_micro" "dT_dt_deepconv" "dT_dt_shalconv" "dT_dt_pbl" "dT_dt_swrad" "dT_dt_lwrad" "dT_dt_cgwd" "dT_dt_ogwd" "dq_dt_phys" "dq_dt_micro" "dq_dt_shalconv" \
+"dq_dt_deepconv" "dq_dt_pbl" "du_dt_phys" "du_dt_pbl" "du_dt_deepconv" "du_dt_shalconv" "du_dt_ogwd" "du_dt_cgwd" "dv_dt_phys" "dv_dt_shalconv" "dv_dt_cgwd" "dv_dt_deepconv" \
+"dv_dt_ogwd" "dv_dt_pbl" "tprcp_accum" "ice_accum" "snow_accum" "graupel_accum" "conv_prcp_accum" "v_force_tend" "u_force_tend" "T_force_tend" "qv_force_tend" \
+"max_cloud_fraction" "rad_cloud_fraction" "rad_cloud_swp" "rad_cloud_rwp" "rad_cloud_iwp" "rad_cloud_lwp" "toa_total_albedo" "dcnv_prcp_inst" "mp_prcp_inst" "scnv_prcp_inst" "tprcp_inst")
+
+dir=${CCPP_SUITE}
+export dir
 concat_scm (){
-	yyyy=$(echo $CDATE | cut -c1-4)
-	mm=$(echo $CDATE | cut -c5-6)
-	dd=$(echo $CDATE | cut -c7-8)
-	cyc=${cyc:-$(echo $CDATE | cut -c9-10)}
 
-	yyyy6=$(echo $CDATE_6 | cut -c1-4)
-	mm6=$(echo $CDATE_6 | cut -c5-6)
-	dd6=$(echo $CDATE_6 | cut -c7-8)
-	cyc6=${cyc6:-$(echo $CDATE_6 | cut -c9-10)}
+  var=$1
+  echo "Processing ${var}"
+  mkdir -p ${CONCATE_OUTPUT}/${var}
+  cd ${CONCATE_OUTPUT}/${var}
 
-	echo ${yyyy6}-${mm6}-${dd6} ${cyc6}:00:00
+  for file in ${SCM_RESULTS}/${dir}/0*/output_all/CCPP_${CCPP_SUITE}_icon_${var}_2016*.nc; do
+    base=$(basename "$file")  # get the parent folder name (optional)
+    echo "Processing $file -> ${base}_a.nc"
+    ncks -h --mk_rec_dmn init_time "$file" -O -o "${base}_a.nc"
+  done
+   ncrcat -h -x -v Times CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc CCPP_${CCPP_SUITE}_icon_${var}.nc
+   rm -rf CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc 
 
-
-	datestamp6=`echo ${mm6}/${dd6}/${yyyy6} ${cyc6}:00`
-	echo $datestamp6
-	datestamp0="08/11/2016 00:00"
-	delta=$(($(date -d "$datestamp6" +%s)-$(date -d "$datestamp0" +%s)))
-	echo $delta
-
-
-	export yyyy
-	export mm
-	export dd
-	export cyc
-	echo $1 $2
-	echo $1
-	echo $2
-
-	mkdir ${CONCATE_OUTPUT}/concate_v2.0_${CCPP_SUITE}/2016_ICON_${CCPP_SUITE}
-	mkdir ${CONCATE_OUTPUT}/concate_v2.0_${CCPP_SUITE}/2016_ICON_${CCPP_SUITE}/$1
-	cd ${CONCATE_OUTPUT}/concate_v2.0_${CCPP_SUITE}/2016_ICON_${CCPP_SUITE}/$1
-	var=$1
-	export var
-        rm -r *.nc
-        rm -r *.tmp
-	cp -r ${CONCATE_OUTPUT}/concate_v2.0_${CCPP_SUITE}/*/output_all/${var}/CCPP_${CCPP_SUITE}_ICON*.nc .
-        time_dummy=`ncdump -h CCPP_${CCPP_SUITE}_ICON_${var}_2016081103.nc |sed '5 !d'`
-        time_str=`echo "${time_dummy%=*}" |xargs` #carve out time dimension name
-        for f in CCPP_${CCPP_SUITE}_ICON_${1}*.nc; do
-             echo ${f}
-             ncks -h -O --mk_rec_dmn ${time_str} ${f} ${f}  #assign record dimension
-        done
-        ncrcat -h CCPP_${CCPP_SUITE}_ICON_${1}*.nc 2016_ICON_CCPP_${CCPP_SUITE}_${1}.nc #concatnate along record dimension using NCO
 }
 export -f concat_scm
-
-parallel concat_scm ::: $(</home/xiasun/work2_xiasun/workflow/scripts/vars_accum.txt)
+parallel -j 35 concat_scm ::: "${vars[@]}"
