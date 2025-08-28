@@ -2,8 +2,6 @@
 
 Last Update: Aug, 2025
 
-If you have questions, please contact the lead developer, Xia Sun at xia.sun@colorado.edu
-
 ## Description
 Rocoto workflow and job scripts to run SCM simulations over an array of columns for extended periods of time.
 The scripts are developed based on the [Common Community Physics Package (CCPP) SCM](https://github.com/NCAR/ccpp-scm).
@@ -24,3 +22,6 @@ The workflow includes seven jobs, pertaining to pre-processing, SCM simulations,
 `rocotorun -d scm_auto.db -w scm_auto.xml`
 
 More information on how to use Rocoto are available in the [Rocoto documentation](http://christopherwharrop.github.io/rocoto/).
+
+If you have questions using this SCM automation workflow, please get in touch with the lead developer, X. Sun at xia.sun@colorado.edu
+Other contributors include: K. Newman, W. Mayfield, J. Simpson
