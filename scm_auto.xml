@@ -7,9 +7,8 @@
 
 	<!--Experiment parameters such as starting, ending dates, CCPP suite-->
 	<!ENTITY SDATE "201608110000">
-	<!ENTITY EDATE "201609101200">
+	<!ENTITY EDATE "201609101500">
 
-	<!-- <!ENTITY EDATE "201609101200"> -->
 	<!ENTITY INTERVAL "3:00:00">
 	<!ENTITY CCPP_SUITE "SCM_RAP">
 	<!ENTITY EXP "icon">
