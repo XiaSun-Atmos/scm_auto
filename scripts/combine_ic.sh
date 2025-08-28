@@ -8,7 +8,9 @@
 ## cyc    : current cycle (HH)]
 ## author: Xia Sun, CIRES at CU Boulder/NOAA Global Systems Laboratory (Xia.Sun@colorado.edu)
 ###############################################################
+
 export PATH="To/Your/Python/DIR"
+
 
 yyyy=$(echo $CDATE | cut -c1-4)
 mm=$(echo $CDATE | cut -c5-6)
@@ -29,6 +31,7 @@ yyyy9=$(echo $CDATE_9 | cut -c1-4)
 mm9=$(echo $CDATE_9 | cut -c5-6)
 dd9=$(echo $CDATE_9 | cut -c7-8)
 cyc9=$(echo $CDATE_9 | cut -c9-10)
+
 
 # 2016091015 is the last time cycle, do 6 hr simulation due to ICs ending time
 if [ "$yyyy$mm$dd${cyc}" = "2016091015" ]; then

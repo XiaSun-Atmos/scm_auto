@@ -19,6 +19,7 @@ ulimit -s unlimited
 ulimit -a unlimited
 module load nco
 module load parallel
+
 yyyy=$(echo $CDATE | cut -c1-4)
 mm=$(echo $CDATE | cut -c5-6)
 dd=$(echo $CDATE | cut -c7-8)
@@ -49,11 +50,13 @@ export dd9
 export cyc9
 
 
+
 minsize=50000
 
 # make dirs for IC
 
 mkdir ${SPLIT_IC}/${mm}_${dd}_${cyc}
+
 split_ic (){
 	minsize=50000
 	yyyy=$(echo $CDATE | cut -c1-4)
@@ -68,14 +71,17 @@ split_ic (){
 
 	######## Retrieve IC at lat and lon ##########
 
+
 	mkdir ${SPLIT_IC}/${mm}_${dd}_${cyc}/lat_$1
 	cd ${SPLIT_IC}/${mm}_${dd}_${cyc}/lat_$1
     rm -r mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
     ncks -h -d lat,$1 -d lon,$2 ${COMBINE_IC}/mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_fulladv.nc mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+
 	ncwa -h -a lon,lat mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc -O mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
 	###   global attributes   ###
 	z0=`ncdump -v z0 mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc | tail -n 2 | head -n 1 | cut -d ';' -f 1`
 	zorog=`ncdump -v orog mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc | tail -n 2 | head -n 1 | cut -d ';' -f 1`
+
 	echo $z0
 	echo $zorog 
 	z0=`echo $z0 | awk -F'=' '{print $2}' | xargs`
@@ -106,4 +112,6 @@ split_ic (){
 
 }
 export -f split_ic
+
 parallel --will-cite -j 24 split_ic ::: {0..199} ::: {0..219}
+

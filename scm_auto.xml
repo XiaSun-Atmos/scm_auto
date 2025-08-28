@@ -4,9 +4,12 @@
 	<!--Scrub Times-->
 	<!ENTITY CYCLE_THROTTLE "2">
 
+
 	<!--Experiment parameters such as starting, ending dates, CCPP suite-->
 	<!ENTITY SDATE "201608110000">
-	<!ENTITY EDATE "201608130000">
+	<!ENTITY EDATE "201609101200">
+
+	<!-- <!ENTITY EDATE "201609101200"> -->
 	<!ENTITY INTERVAL "3:00:00">
 	<!ENTITY CCPP_SUITE "SCM_RAP">
 	<!ENTITY EXP "icon">
@@ -57,13 +60,11 @@
 	<cycledef group="icon">&SDATE; &EDATE; &INTERVAL;</cycledef>
 	<cycledef group="at_end">00 15 10 09 2016 *</cycledef>
 
-
 	<task name="combine_ic" cycledefs="icon" maxtries="3" final="false">
 		<command>&SCRIPTS;/combine_ic.sh</command>
 
 		<jobname><cyclestr>@m@d@H_combine</cyclestr></jobname>
 		<account>gmtb</account>
-
 		&RESOURCES_COMBINE_IC;
 		<walltime>&WALLTIME_COMBINE_IC;</walltime>
 		<join>&STDOUT;/combine_ic/<cyclestr>@m@d@H_combineic_&EXP;_&CCPP_SUITE;.out</cyclestr></join>
@@ -155,7 +156,6 @@
 
 		<dependency>
 			<and>
-
 				<taskdep task="split_ic"/>
 
 			</and>
@@ -197,7 +197,6 @@
 			<taskdep task="scm_py"/>
 		</and>
 	</dependency>
-
 	</task>
 
 	<task name="concate_time" cycledefs="at_end" maxtries="1">
