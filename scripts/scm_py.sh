@@ -13,7 +13,7 @@
 ## author: Xia Sun, CIRES at CU Boulder/NOAA Global Systems Laboratory (Xia.Sun@colorado.edu)
 ###############################################################
 
-export PATH="/To/Your/Python/DIR"
+export PATH="/To/Your/Python/DIR:$PATH"
 which python
 # Adding the local libs, so SCM won't touch /contrib for libraries
 export LD_LIBRARY_PATH=/usr/lib64:/Your/Local/SCM/Lib:$LD_LIBRARY_PATH

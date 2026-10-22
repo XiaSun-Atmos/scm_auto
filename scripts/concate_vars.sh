@@ -51,7 +51,7 @@ if [ -f "${SCM_RESULTS}/${CCPP_SUITE}/${mm}_${dd}_${cyc}/output_all/CCPP_${CCPP_
 else	
 	echo "Fresh start"
 	cp -r $PYSCRIPTS/concat_vars_lon_paral.py concat_lon_${mm}_${dd}_${cyc}.py
-	python concat_lon_${mm}_${dd}_${cyc}.py
+	python concat_lon_${mm}_${dd}_${cyc}.py || exit 1
 	sync
 	sleep 10
 	cp -r $PYSCRIPTS/concat_vars_lat_paral.py concat_lat_${mm}_${dd}_${cyc}.py

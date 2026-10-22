@@ -31,4 +31,4 @@ cyc6=${cyc6:-$(echo $CDATE_6 | cut -c9-10)}
 
 cd ${SCM_RESULTS}/${CCPP_SUITE}/${mm}_${dd}_${cyc}/
 cp -r ${SCRIPTS}/tar.sh .
-sh tar.sh >& tar.log
+bash tar.sh >& tar.log

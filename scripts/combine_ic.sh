@@ -9,7 +9,7 @@
 ## author: Xia Sun, CIRES at CU Boulder/NOAA Global Systems Laboratory (Xia.Sun@colorado.edu)
 ###############################################################
 
-export PATH="To/Your/Python/DIR"
+export PATH="To/Your/Python/DIR:$PATH"
 
 
 yyyy=$(echo $CDATE | cut -c1-4)
@@ -35,6 +35,7 @@ cyc9=$(echo $CDATE_9 | cut -c9-10)
 
 # 2016091015 is the last time cycle, do 6 hr simulation due to ICs ending time
 if [ "$yyyy$mm$dd${cyc}" = "2016091015" ]; then
+	cd "${ICON_IC}" || exit 1
 	rm -rf mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc6}_combined_v2.0.nc
 	ncrcat mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy3$mm3$dd3.${cyc3}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy6$mm6$dd6.${cyc6}_v2.0.nc mumip_${EXP}${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_${cyc6}_combined_v2.0.nc 
 

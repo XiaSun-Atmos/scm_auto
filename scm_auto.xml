@@ -191,7 +191,7 @@
 	<dependency>
 		<and>
 			<datadep age="05:00">
-			<cyclestr>&SCM_RESULTS;/@m_@d_@H/lat_199/mumip_&EXP;_scm_@Y@m@d.@H_lat199_lon219_&CCPP_SUITE;.nc</cyclestr>
+			<cyclestr>&SCM_RESULTS;/&CCPP_SUITE;/@m_@d_@H/lat_199/mumip_&EXP;_scm_@Y@m@d.@H_lat199_lon219_&CCPP_SUITE;.nc</cyclestr>
 			</datadep>
 			<taskdep task="scm_py"/>
 		</and>
