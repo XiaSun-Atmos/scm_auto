@@ -9,64 +9,37 @@
 ## SCRIPTS: /full/path/to/job/scripts
 ## PYSCRIPTS: /full/path/to/python/scripts
 ## CONCATE_OUTPUT: /full/path/to/concatenate/output
+## author: Xia Sun, CIRES at CU Boulder/NOAA Global Systems Laboratory (Xia.Sun@colorado.edu)
+
 ###############################################################
-export PATH="/work2/noaa/gmtb/xiasun/tools/gnu_parallel/bin:$PATH"
-export PATH="/work2/noaa/gmtb/xiasun/anaconda3/bin:$PATH"
+
+
 module load nco
-ulimit -u 9000
-minsize=18000
+module load parallel
+
+vars=("T" "u" "v" "qv" "pres" "tsfc" "lhf" "shf" "t2m" "q2m" "u10m" "v10m" "pres_s" "qc" "qi" "ql" "sfc_dwn_lw" 'pwat' \
+"sfc_net_sw" "sfc_up_sw" "sfc_dwn_sw" "dT_dt_phys" "dT_dt_micro" "dT_dt_deepconv" "dT_dt_shalconv" "dT_dt_pbl" "dT_dt_swrad" "dT_dt_lwrad" "dT_dt_cgwd" "dT_dt_ogwd" "dq_dt_phys" "dq_dt_micro" "dq_dt_shalconv" \
+"dq_dt_deepconv" "dq_dt_pbl" "du_dt_phys" "du_dt_pbl" "du_dt_deepconv" "du_dt_shalconv" "du_dt_ogwd" "du_dt_cgwd" "dv_dt_phys" "dv_dt_shalconv" "dv_dt_cgwd" "dv_dt_deepconv" \
+"dv_dt_ogwd" "dv_dt_pbl" "tprcp_accum" "ice_accum" "snow_accum" "graupel_accum" "conv_prcp_accum" "v_force_tend" "u_force_tend" "T_force_tend" "qv_force_tend" \
+"max_cloud_fraction" "rad_cloud_fraction" "rad_cloud_swp" "rad_cloud_rwp" "rad_cloud_iwp" "rad_cloud_lwp" "toa_total_albedo" "dcnv_prcp_inst" "mp_prcp_inst" "scnv_prcp_inst" "tprcp_inst")
+
+dir=${CCPP_SUITE}
+export dir
 concat_scm (){
-	sdate=$(echo $SDATE | cut -c1-10)
-	edate=$(echo $EDATE | cut -c1-10)
 
-	function ncdmnsz { ncks --trd -m -M ${2} | grep -E -i ": ${1}, size =" | cut -f 7 -d ' ' | uniq ; }
+  var=$1
+  echo "Processing ${var}"
+  mkdir -p ${CONCATE_OUTPUT}/${var}
+  cd ${CONCATE_OUTPUT}/${var}
 
-	ic_array=("T" "u" "v" "qv" "pres")
-
-	mkdir -p ${CONCATE_OUTPUT}/$1
-	cd ${CONCATE_OUTPUT}/$1
-	var=$1
-	export var
-        rm -r *.nc
-        rm -r *.tmp
-
-        cp -r ${SCM_RESULTS}/*/output_all/${var}/CCPP_${CCPP_SUITE}_${EXP}_${var}_*_F3.nc .
-
-        time_dummy=`ncdump -h CCPP_${CCPP_SUITE}_${EXP}_${var}_${sdate}_F3.nc |sed '5 !d'`
-        time_str=`echo "${time_dummy%=*}" |xargs` #carve out time dimension name
-	echo "${time_dummy}"
-	echo "${time_str}"
-        for f in CCPP_${CCPP_SUITE}_${EXP}_${1}_*_F3.nc; do
-             echo ${f}
-	     ncdmnsz lat ${f}
-	     ncdmnsz lon ${f}
-             ncks -O -h --mk_rec_dmn ${time_str} ${f} ${f}  #assign record dimension
-        done
-        ncrcat -O -h CCPP_${CCPP_SUITE}_${EXP}_${var}_*_F3.nc  2016_${EXP}_CCPP_${CCPP_SUITE}_${1}_${sdate}_${edate}_F3.nc #concatnate along record dimension using NCO
-
-       cp -r ${SCM_RESULTS}/*/output_all/${var}/CCPP_${CCPP_SUITE}_${EXP}_${var}_*_F6.nc .
-
-        for f in CCPP_${CCPP_SUITE}_${EXP}_${1}_*_F6.nc; do
-             echo ${f}
-             ncks -h -O --mk_rec_dmn ${time_str} ${f} ${f}  #assign record dimension
-        done
-        ncrcat -O -h CCPP_${CCPP_SUITE}_${EXP}_${var}_*_F6.nc  2016_${EXP}_CCPP_${CCPP_SUITE}_${1}_${sdate}_${edate}_F6.nc #concatnate along record dimension using NCO
-
-	for icvars in "${ic_array[@]}"; do
-	    # Check if the variable is equal to the current array element
-	    if [ "$var" = "$icvars" ]; then
-	       cp -r ${SCM_RESULTS}/*/output_all/${var}/CCPP_${CCPP_SUITE}_${EXP}_${var}_*_F0.nc .
-
-	        for f in CCPP_${CCPP_SUITE}_${EXP}_${1}_*_F0.nc; do
-	             echo ${f}
-	             ncks -h -O --mk_rec_dmn ${time_str} ${f} ${f}  #assign record dimension
-	        done
-	        ncrcat -O -h CCPP_${CCPP_SUITE}_${EXP}_${var}_*_F0.nc  2016_${EXP}_CCPP_${CCPP_SUITE}_${1}_${sdate}_${edate}_F0.nc #concatnate along record dimension using NCO
-	        break
-	    fi
-	done	
+  for file in ${SCM_RESULTS}/${dir}/0*/output_all/CCPP_${CCPP_SUITE}_icon_${var}_2016*.nc; do
+    base=$(basename "$file")  # get the parent folder name (optional)
+    echo "Processing $file -> ${base}_a.nc"
+    ncks -h --mk_rec_dmn init_time "$file" -O -o "${base}_a.nc"
+  done
+   ncrcat -h -x -v Times CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc CCPP_${CCPP_SUITE}_icon_${var}.nc || return 1
+   rm -rf CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc 
 
 }
 export -f concat_scm
-
-parallel concat_scm ::: $(<${SCRIPTS}/vars_all.txt)
+parallel -j 35 concat_scm ::: "${vars[@]}"

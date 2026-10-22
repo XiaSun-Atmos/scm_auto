@@ -1,4 +1,8 @@
 #!/bin/bash -u
+# purpose: convert UFC CG forcing to dephy v1 to drive CCPP SCM, MUMIP project, 2024
+# contact: Kathryn Newman, knewman@ucar.edu
+#          Xia Sun, xia.sun@noaa.gov
+#          Will Mayfield, wmayfield@ucar.edu 
 
 if [ $# -lt 3 ]
   then
@@ -14,11 +18,14 @@ echo $subname
 startdate=$2
 enddate=$3
 
+
 # setting constants
+
 l_v=2.501e6
 c_pd=1005.7
 
 ### create t0 (initialization) variables ###
+
 # cut out variables at initial time
 ncks -h -d time,0 ${filename} -O init_time_${filename}
 # rename time dimension
@@ -53,6 +60,7 @@ ncatted -h -a surfaceType,global,c,c,ocean -a surface_forcing_temp,global,o,c,su
 ${filename} -O ${filename}
 
 # changes for startDate and endDate
+
 yr=${startdate:0:4}
 mo=${startdate:4:2}
 dy=${startdate:6:2}
@@ -61,6 +69,7 @@ min=${startdate:10:2}
 sec=${startdate:12:2}
 echo "$sec"
 datestring=${yr}'-'${mo}'-'${dy}' '${hr}':'${min}':'${sec}
+
 
 end_yr=${enddate:0:4}
 end_mo=${enddate:4:2}
@@ -102,3 +111,4 @@ ncrename -h -v pressure,pa -v temp,ta -v u,ua -v v,va -v thetal_adv,tnthetal_adv
 -v u_adv,tnua_adv -v v_adv,tuva_adv -v u_nudging,ua_nudging -h -v v_nudging,va_nudging -v w,wa -v zorog,orog -v height,zh \
 -v sfc_sens_flx,hfss -v sfc_lat_flx,hfls \
 ${filename} -O ${filename} 
+

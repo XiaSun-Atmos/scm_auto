@@ -10,16 +10,16 @@
 ## COMBINE_IC : /full/path/to/combined/IC
 ## cyc    : current cycle (HH)
 ## SCRIPTS: /full/path/to/job/scripts
+## author: Xia Sun, CIRES at CU Boulder/NOAA Global Systems Laboratory (Xia.Sun@colorado.edu)
 ###############################################################
+
 
 ulimit -u unlimited
 ulimit -s unlimited
 ulimit -a unlimited
-module purge
-module use /work2/noaa/gmtb/mumip/scm_build/ccpp-scm-v7/ccpp-scm/scm/etc/modules
-module load orion_intel
 module load nco
-export PATH="/work/noaa/gmtb/xiasun/MU-MIP/tools/gnu_parallel/bin:$PATH"
+module load parallel
+
 yyyy=$(echo $CDATE | cut -c1-4)
 mm=$(echo $CDATE | cut -c5-6)
 dd=$(echo $CDATE | cut -c7-8)
@@ -49,15 +49,12 @@ export mm9
 export dd9
 export cyc9
 
-suite1=SCM_RAP
-suite2=SCM_GFS_v17_HR3
 
-export suite1
-export suite2
 
 minsize=50000
 
 # make dirs for IC
+
 mkdir ${SPLIT_IC}/${mm}_${dd}_${cyc}
 
 split_ic (){
@@ -73,19 +70,27 @@ split_ic (){
 	cyc9=$(echo $CDATE_9 | cut -c9-10)
 
 	######## Retrieve IC at lat and lon ##########
+
+
 	mkdir ${SPLIT_IC}/${mm}_${dd}_${cyc}/lat_$1
 	cd ${SPLIT_IC}/${mm}_${dd}_${cyc}/lat_$1
     rm -r mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
-    ncks -h -d lat,$1 -d lon,$2 ${COMBINE_IC}/mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined.nc mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+    ncks -h -d lat,$1 -d lon,$2 ${COMBINE_IC}/mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_fulladv.nc mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
+
 	ncwa -h -a lon,lat mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc -O mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
 	###   global attributes   ###
 	z0=`ncdump -v z0 mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc | tail -n 2 | head -n 1 | cut -d ';' -f 1`
 	zorog=`ncdump -v orog mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc | tail -n 2 | head -n 1 | cut -d ';' -f 1`
-	# zorog=$(($zorog))
-	z0=`echo ${z0} | xargs`
-	zorog=`echo ${zorog} | xargs`
 
-	ncatted -h -a zorog,global,c,f,0.0 -a z0,global,c,f,0.0 \
+	echo $z0
+	echo $zorog 
+	z0=`echo $z0 | awk -F'=' '{print $2}' | xargs`
+	echo $z0
+	zorog=`echo $zorog | awk -F'=' '{print $2}' | xargs`
+
+	echo $z0
+	echo $zorog
+	ncatted -h -a zorog,global,c,f,"$zorog" -a z0,global,c,f,"$z0" \
 	mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc -O mumip_${EXP}_${GRID}_IO_0.2_$yyyy$mm$dd.${cyc}_combined_lat$1_lon$2.nc
 
 	
@@ -108,5 +113,5 @@ split_ic (){
 }
 export -f split_ic
 
-time parallel -j 40 -u split_ic ::: {0..199} ::: {0..219}
+parallel --will-cite -j 24 split_ic ::: {0..199} ::: {0..219}
 
