@@ -1,9 +1,7 @@
-# purpose: convert ICON format forcing to dephy v1 to drive CCPP SCM, MUMIP project, 2024
-# contact: Kathryn Newman, knewman@ucar.edu 
-#          Xia Sun, xia.sun@noaa.gov
-
-
 #!/bin/bash -u
+# purpose: convert ICON format forcing to dephy v1 to drive CCPP SCM, MUMIP project, 2024
+# contact: Kathryn Newman, knewman@ucar.edu;
+#          Xia Sun, xia.sun@noaa.gov
 
 
 if [ $# -lt 3 ]

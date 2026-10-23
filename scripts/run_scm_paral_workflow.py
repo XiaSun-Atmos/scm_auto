@@ -40,7 +40,7 @@ FINAL_DIR=os.environ['CCPP_SUITE']
 nlat_start,nlat_end=[0,200]
 nlon_start,nlon_end=[0,220]
 SCM_ROOT=os.environ['SCM_ROOT']
-combine_ds=xr.open_dataset(COMBINE_IC+"/mumip_icon_2.5_IO_0.2_20160811.00_combined_fulladv.nc",drop_variables=["t0"])
+combine_ds=xr.open_dataset(os.path.join(COMBINE_IC, f"mumip_{os.environ['EXP']}_{os.environ['GRID']}_IO_0.2_{yyyy}{mmddcyc3}_combined_fulladv.nc"),drop_variables=["t0"])
 combine_lat=combine_ds['lat']
 combine_lon=combine_ds['lon']
 combine_ds.close()

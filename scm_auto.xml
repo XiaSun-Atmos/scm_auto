@@ -1,4 +1,4 @@
-<?xml version="2.0"?>
+<?xml version="1.0"?>
 <!DOCTYPE workflow
 [
 	<!--Scrub Times-->
@@ -107,7 +107,7 @@
 		<envar><name>RUN_DIR</name><value>&RUN_DIR;</value></envar>	
 		<envar><name>CCPP_SUITE</name><value>&CCPP_SUITE;</value></envar>
 		<envar><name>STDOUT</name><value>&STDOUT;</value></envar>	
-		<envar><name>SCM_ROOT</name><value>&SCM_ROOT;</value></envar>
+		<envar><name>SCM_ROOT</name><value><cyclestr>&SCRATCH_DIR;/ccpp-scm-@Y@m@d@H</cyclestr></value></envar>
 		<envar><name>EXP</name><value><cyclestr>&EXP;</cyclestr></value></envar>
 		<envar><name>GRID</name><value><cyclestr>&GRID;</cyclestr></value></envar>
 	<dependency>
@@ -147,7 +147,7 @@
 		<envar><name>STDOUT</name><value>&STDOUT;</value></envar>
 		<envar><name>SCRATCH_DIR</name><value>&SCRATCH_DIR;</value></envar>
 		<envar><name>SCM_DIR</name><value>&SCM_DIR;</value></envar>	
-		<envar><name>SCM_ROOT</name><value><cyclestr>&SCRATCH_DIR;/ccpp-scm-2016@m@d@H</cyclestr></value></envar>
+		<envar><name>SCM_ROOT</name><value><cyclestr>&SCRATCH_DIR;/ccpp-scm-@Y@m@d@H</cyclestr></value></envar>
 		<envar><name>EXP</name><value><cyclestr>&EXP;</cyclestr></value></envar>
 		<envar><name>GRID</name><value><cyclestr>&GRID;</cyclestr></value></envar>
 		<envar><name>lats</name><value>#lats#</value></envar>
@@ -191,7 +191,7 @@
 	<dependency>
 		<and>
 			<datadep age="05:00">
-			<cyclestr>&SCM_RESULTS;/@m_@d_@H/lat_199/mumip_&EXP;_scm_@Y@m@d.@H_lat199_lon219_&CCPP_SUITE;.nc</cyclestr>
+			<cyclestr>&SCM_RESULTS;/&CCPP_SUITE;/@m_@d_@H/lat_199/mumip_&EXP;_scm_@Y@m@d.@H_lat199_lon219_&CCPP_SUITE;.nc</cyclestr>
 			</datadep>
 			<taskdep task="scm_py"/>
 		</and>

@@ -1,11 +1,8 @@
+#!/bin/bash -u
 # purpose: convert UFC CG forcing to dephy v1 to drive CCPP SCM, MUMIP project, 2024
-# contact: Kathryn Newman, knewman@ucar.edu 
+# contact: Kathryn Newman, knewman@ucar.edu
 #          Xia Sun, xia.sun@noaa.gov
 #          Will Mayfield, wmayfield@ucar.edu 
-
-
-#!/bin/bash -u
-
 
 if [ $# -lt 3 ]
   then

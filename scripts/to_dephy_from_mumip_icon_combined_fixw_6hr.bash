@@ -86,7 +86,7 @@ echo "rename start_date and end_date"
 
 ncrename -h -a global@startDate,start_date -a global@endDate,end_date  -a global@adv_u,adv_ua \
 -a global@adv_v,adv_va -a global@nudging_temp,nudging_ta -a global@forc_w,forc_wa \
--a global@forc_omega,forc_wap -a global@rad_temp,rad_rad_ta -a global@nudging_v,nudging_va \
+-a global@forc_omega,forc_wap -a global@rad_temp,rad_ta -a global@nudging_v,nudging_va \
 -a global@nudging_u,nudging_ua ${filename} -O ${filename}
 
 # ncrename -h -a global@endDate,end_date ${filename} -O ${filename}

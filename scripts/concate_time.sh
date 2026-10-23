@@ -37,7 +37,7 @@ concat_scm (){
     echo "Processing $file -> ${base}_a.nc"
     ncks -h --mk_rec_dmn init_time "$file" -O -o "${base}_a.nc"
   done
-   ncrcat -h -x -v Times CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc CCPP_${CCPP_SUITE}_icon_${var}.nc
+   ncrcat -h -x -v Times CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc CCPP_${CCPP_SUITE}_icon_${var}.nc || return 1
    rm -rf CCPP_${CCPP_SUITE}_icon_${var}_20160*.nc_a.nc 
 
 }
